@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\CategoryController;
+
+Route::resource('posts', PostController::class);
+Route::resource('categories', CategoryController::class);
