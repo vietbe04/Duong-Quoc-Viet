@@ -116,6 +116,7 @@ return [
     ],
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     /*
     |--------------------------------------------------------------------------
     | Markdown Mail Settings
@@ -135,6 +136,8 @@ return [
         ],
     ],
 
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 ];

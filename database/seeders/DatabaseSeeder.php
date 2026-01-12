@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         // \App\Models\User::factory(10)->create();
 
         // \App\Models\User::factory()->create([
@@ -23,6 +24,8 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 =======
+=======
+>>>>>>> Stashed changes
         // Create Roles
         $adminRole = DB::table('roles')->insertGetId([
             'name' => 'Admin',
@@ -226,6 +229,9 @@ class DatabaseSeeder extends Seeder
                 'post_id' => $postId,
             ]);
         }
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     }
 }

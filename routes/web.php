@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
 /*
 |--------------------------------------------------------------------------
@@ -17,6 +18,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 =======
+=======
+>>>>>>> Stashed changes
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
@@ -143,5 +146,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::put('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.update-status');
     Route::put('orders/{order}/payment', [AdminOrderController::class, 'updatePayment'])->name('orders.update-payment');
     Route::delete('orders/{order}', [AdminOrderController::class, 'destroy'])->name('orders.destroy');
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 });

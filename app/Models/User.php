@@ -20,6 +20,9 @@ class User extends Authenticatable implements JWTSubject
         'phone',
         'address',
         'avatar',
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     ];
 
@@ -28,6 +31,7 @@ class User extends Authenticatable implements JWTSubject
         'remember_token',
     ];
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
     /**
      * The attributes that should be cast.
@@ -39,6 +43,8 @@ class User extends Authenticatable implements JWTSubject
     ];
 }
 =======
+=======
+>>>>>>> Stashed changes
     protected function casts(): array
     {
         return [
@@ -118,5 +124,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
+<<<<<<< Updated upstream
+}
+>>>>>>> Stashed changes
+=======
 }
 >>>>>>> Stashed changes
