@@ -96,8 +96,6 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
-<<<<<<< Updated upstream
-=======
     /*
     |--------------------------------------------------------------------------
     | Admin Email Address
@@ -109,7 +107,6 @@ return [
 
     'admin_email' => env('ADMIN_EMAIL', 'admin@example.com'),
 
->>>>>>> Stashed changes
     /*
     |--------------------------------------------------------------------------
     | Markdown Mail Settings

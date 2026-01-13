@@ -21,13 +21,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-<<<<<<< Updated upstream
-=======
         'phone',
         'avatar',
         'address',
         'status',
->>>>>>> Stashed changes
     ];
 
     /**
@@ -48,8 +45,8 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-<<<<<<< Updated upstream
-=======
+
+
 
     public function roles()
     {
@@ -147,5 +144,5 @@ class User extends Authenticatable
     {
         return $query->where('status', 'active');
     }
->>>>>>> Stashed changes
+
 }

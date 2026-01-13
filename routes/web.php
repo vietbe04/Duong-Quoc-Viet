@@ -5,10 +5,7 @@ use Illuminate\Support\Facades\Route;
 // Unified Auth
 use App\Http\Controllers\UnifiedAuthController;
 
-<<<<<<< Updated upstream
-Route::get('/', function () {
-    return view('welcome');
-=======
+
 // Frontend Controllers
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\PostController;
@@ -146,7 +143,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::resource('permissions', PermissionController::class)->except(['show']);
         });
     });
->>>>>>> Stashed changes
 });
 
 // Test route for permissions
