@@ -96,6 +96,20 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+<<<<<<< Updated upstream
+=======
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Email Address
+    |--------------------------------------------------------------------------
+    |
+    | The email address where admin notifications (like new orders) will be sent.
+    |
+    */
+
+    'admin_email' => env('ADMIN_EMAIL', 'admin@example.com'),
+
+>>>>>>> Stashed changes
     /*
     |--------------------------------------------------------------------------
     | Markdown Mail Settings

@@ -21,6 +21,13 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+<<<<<<< Updated upstream
+=======
+        'phone',
+        'avatar',
+        'address',
+        'status',
+>>>>>>> Stashed changes
     ];
 
     /**
@@ -41,4 +48,104 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+<<<<<<< Updated upstream
+=======
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'user_role');
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Check if user has a specific role
+     */
+    public function hasRole($role): bool
+    {
+        if (!$this->role) {
+            return false;
+        }
+
+        if (is_string($role)) {
+            return $this->role->slug === $role;
+        }
+        return $this->role->id === $role;
+    }
+
+    /**
+     * Check if user has a specific permission
+     */
+    public function hasPermission($permission): bool
+    {
+        if (!$this->role) {
+            return false;
+        }
+
+        return $this->role->hasPermission($permission);
+    }
+
+    /**
+     * Check if user is admin or super-admin
+     */
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('admin') || $this->hasRole('super-admin');
+    }
+
+    /**
+     * Check if user is super-admin
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole('super-admin');
+    }
+
+    /**
+     * Assign a role to user
+     */
+    public function assignRole($role)
+    {
+        if (is_string($role)) {
+            $role = Role::where('slug', $role)->firstOrFail();
+        }
+        $this->role_id = $role->id;
+        $this->save();
+    }
+
+    /**
+     * Remove role from user
+     */
+    public function removeRole()
+    {
+        $this->role_id = null;
+        $this->save();
+    }
+
+    public function getAvatarUrlAttribute()
+    {
+        if ($this->avatar) {
+            return asset('storage/' . $this->avatar);
+        }
+        return asset('images/default-avatar.png');
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+>>>>>>> Stashed changes
 }

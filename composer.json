@@ -2,11 +2,22 @@
     "name": "laravel/laravel",
     "type": "project",
     "description": "The Laravel Framework.",
+<<<<<<< Updated upstream
     "keywords": ["framework", "laravel"],
+=======
+    "keywords": [
+        "framework",
+        "laravel"
+    ],
+>>>>>>> Stashed changes
     "license": "MIT",
     "require": {
         "php": "^8.0.2",
         "guzzlehttp/guzzle": "^7.2",
+<<<<<<< Updated upstream
+=======
+        "intervention/image": "^3.11",
+>>>>>>> Stashed changes
         "laravel/framework": "^9.19",
         "laravel/sanctum": "^3.0",
         "laravel/tinker": "^2.7"
@@ -25,7 +36,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/Helpers/PermissionHelper.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
