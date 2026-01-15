@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@php
+/** @var \App\Models\Post $post */
+@endphp
+
 @section('title', $post->name)
 
 @section('content')
@@ -13,7 +17,7 @@
                     <li class="breadcrumb-item"><a href="{{ route('home') }}">Trang chủ</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('posts.index') }}">Bài viết</a></li>
                     @if($post->category)
-                        <li class="breadcrumb-item"><a href="{{ route('posts.index', ['category' => $post->category->slug]) }}">{{ $post->category->name }}</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('posts.index', ['category' => optional($post->category)->slug]) }}">{{ optional($post->category)->name }}</a></li>
                     @endif
                     <li class="breadcrumb-item active" aria-current="page">{{ Str::limit($post->name, 30) }}</li>
                 </ol>
@@ -22,15 +26,15 @@
             <article>
                 <header class="mb-4">
                     @if($post->category)
-                        <a href="{{ route('posts.index', ['category' => $post->category->slug]) }}" class="badge bg-primary text-decoration-none mb-2">
-                            {{ $post->category->name }}
+                        <a href="{{ route('posts.index', ['category' => optional($post->category)->slug]) }}" class="badge bg-primary text-decoration-none mb-2">
+                            {{ optional($post->category)->name }}
                         </a>
                     @endif
                     <h1 class="mb-3">{{ $post->name }}</h1>
                     <div class="text-muted mb-3">
                         <span class="me-3"><i class="fas fa-calendar me-1"></i> {{ $post->published_at->format('d/m/Y') }}</span>
-                        @if($post->author)
-                            <span class="me-3"><i class="fas fa-user me-1"></i> {{ $post->author->name }}</span>
+                        @if($post->user)
+                            <span class="me-3"><i class="fas fa-user me-1"></i> {{ $post->user->name }}</span>
                         @endif
                     </div>
                 </header>
@@ -98,14 +102,14 @@
         <!-- Sidebar -->
         <div class="col-lg-4">
             <!-- Author -->
-            @if($post->author)
+            @if($post->user)
             <div class="sidebar-widget">
                 <h5><i class="fas fa-user me-2"></i> Tác giả</h5>
                 <div class="d-flex align-items-center">
-                    <img src="{{ $post->author->avatar_url }}" alt="" width="60" height="60" class="rounded-circle me-3" style="object-fit: cover;">
+                    <img src="{{ $post->user->avatar_url }}" alt="" width="60" height="60" class="rounded-circle me-3" style="object-fit: cover;">
                     <div>
-                        <h6 class="mb-0">{{ $post->author->name }}</h6>
-                        <small class="text-muted">{{ $post->author->email }}</small>
+                        <h6 class="mb-0">{{ $post->user->name }}</h6>
+                        <small class="text-muted">{{ $post->user->email }}</small>
                     </div>
                 </div>
             </div>

@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
-use App\Mail\OrderConfirmation;
-use App\Mail\NewOrderNotification;
+use App\Jobs\SendOrderConfirmationEmailJob;
+use App\Jobs\SendAdminNotificationJob;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 class CheckoutController extends Controller
 {
@@ -45,7 +45,7 @@ class CheckoutController extends Controller
             }
         }
 
-        $user = auth()->user();
+        $user = Auth::user();
 
         return view('frontend.checkout.index', compact('cartItems', 'subtotal', 'user'));
     }
@@ -80,7 +80,7 @@ class CheckoutController extends Controller
             // Create order
             $order = Order::create([
                 'order_number' => Order::generateOrderNumber(),
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'customer_name' => $request->name,
                 'customer_email' => $request->email,
                 'customer_phone' => $request->phone,
@@ -121,29 +121,27 @@ class CheckoutController extends Controller
 
             DB::commit();
 
-            // Send emails
+            // Dispatch order confirmation email via queue (non-blocking)
             try {
-                // Send to customer
-                Mail::to($order->customer_email)->send(new OrderConfirmation($order));
-                
-                Log::info('Order confirmation email sent to customer: ' . $order->customer_email);
-                
-                // Send to admin
-                $adminEmail = config('mail.admin_email');
+                SendOrderConfirmationEmailJob::dispatch($order->id)->onQueue('emails');
+                Log::info('Order confirmation email job dispatched: ' . $order->order_number);
+            } catch (\Exception $e) {
+                Log::error('Failed to dispatch order confirmation: ' . $e->getMessage());
+            }
+
+            // Dispatch admin notifications via queue (non-blocking)
+            try {
+                $adminEmail = config('mail.from.address');
                 if ($adminEmail && $adminEmail !== 'admin@example.com') {
-                    Mail::to($adminEmail)->send(new NewOrderNotification($order));
-                    Log::info('Order notification sent to admin: ' . $adminEmail);
+                    SendAdminNotificationJob::dispatch($order->id, $adminEmail)->onQueue('emails');
+                    Log::info('Admin notification job dispatched: ' . $adminEmail);
                 }
                 
-                // Send backup notification
                 $backupEmail = 'duongdinhcuongviajsc@gmail.com';
-                Mail::to($backupEmail)->send(new NewOrderNotification($order));
-                Log::info('Order notification sent to backup email: ' . $backupEmail);
-                
+                SendAdminNotificationJob::dispatch($order->id, $backupEmail)->onQueue('emails');
+                Log::info('Admin notification job dispatched: ' . $backupEmail);
             } catch (\Exception $e) {
-                // Log email error but don't fail the order
-                Log::error('Failed to send order emails: ' . $e->getMessage());
-                Log::error('Email error trace: ' . $e->getTraceAsString());
+                Log::error('Failed to dispatch admin notifications: ' . $e->getMessage());
             }
 
             return redirect()->route('checkout.success', $order->order_number)

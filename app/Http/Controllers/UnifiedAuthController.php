@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendWelcomeEmailJob;
 use App\Models\User;
 use App\Models\Role;
 use Illuminate\Http\Request;
@@ -93,6 +94,9 @@ class UnifiedAuthController extends Controller
         if ($userRole) {
             $user->roles()->attach($userRole);
         }
+
+        // Dispatch welcome email job
+        SendWelcomeEmailJob::dispatch($user->id)->onQueue('emails');
 
         Auth::login($user);
 
