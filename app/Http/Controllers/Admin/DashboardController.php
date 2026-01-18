@@ -8,12 +8,16 @@ use App\Models\Post;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        if (!hasPermission('dashboard.view')) {
+        /** @var User $user */
+        $user = Auth::user();
+        
+        if (!$user->hasPermission('dashboard.view') && !$user->isSuperAdmin()) {
             abort(403, 'Bạn không có quyền xem dashboard.');
         }
 

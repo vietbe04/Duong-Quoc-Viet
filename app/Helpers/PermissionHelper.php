@@ -1,73 +1,82 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
-/**
- * Check if authenticated user has a specific permission
- *
- * @param string $permission
- * @return bool
- */
-function hasPermission($permission)
-{
-    if (!auth()->check()) {
-        return false;
+if (!function_exists('hasPermission')) {
+    /**
+     * Check if authenticated user has a specific permission
+     *
+     * @param string $permission
+     * @return bool
+     */
+    function hasPermission($permission)
+    {
+        if (!Auth::check()) {
+            return false;
+        }
+
+        /** @var User $user */
+        $user = Auth::user();
+
+        return $user->hasPermission($permission) || $user->isSuperAdmin();
     }
-
-    /** @var User $user */
-    $user = auth()->user();
-
-    return $user->hasPermission($permission) || $user->isSuperAdmin();
 }
 
-/**
- * Check if authenticated user has a specific role
- *
- * @param string $role
- * @return bool
- */
-function hasRole($role)
-{
-    if (!auth()->check()) {
-        return false;
+if (!function_exists('hasRole')) {
+    /**
+     * Check if authenticated user has a specific role
+     *
+     * @param string $role
+     * @return bool
+     */
+    function hasRole($role)
+    {
+        if (!Auth::check()) {
+            return false;
+        }
+
+        /** @var User $user */
+        $user = Auth::user();
+
+        return $user->roles()->where('slug', $role)->exists();
     }
-
-    /** @var User $user */
-    $user = auth()->user();
-
-    return $user->hasRole($role);
 }
 
-/**
- * Check if authenticated user is admin
- *
- * @return bool
- */
-function isAdmin()
-{
-    if (!auth()->check()) {
-        return false;
+if (!function_exists('isAdmin')) {
+    /**
+     * Check if authenticated user is admin
+     *
+     * @return bool
+     */
+    function isAdmin()
+    {
+        if (!Auth::check()) {
+            return false;
+        }
+
+        /** @var User $user */
+        $user = Auth::user();
+
+        return $user->isAdmin();
     }
-
-    /** @var User $user */
-    $user = auth()->user();
-
-    return $user->isAdmin();
 }
 
-/**
- * Check if authenticated user is super admin
- *
- * @return bool
- */
-function isSuperAdmin()
-{
-    if (!auth()->check()) {
-        return false;
+if (!function_exists('isSuperAdmin')) {
+    /**
+     * Check if authenticated user is super admin
+     *
+     * @return bool
+     */
+    function isSuperAdmin()
+    {
+        if (!Auth::check()) {
+            return false;
+        }
+
+        /** @var User $user */
+        $user = Auth::user();
+
+        return $user->isSuperAdmin();
     }
-
-    /** @var User $user */
-    $user = auth()->user();
-
-    return $user->isSuperAdmin();
 }

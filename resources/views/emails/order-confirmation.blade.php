@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html lang="vi">
+@php
+/** @var \App\Models\Order $order */
+@endphp
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -287,7 +290,7 @@
 
             <!-- Action Button -->
             <center>
-                <a href="{{ env('APP_URL') }}/orders/{{ $order->id }}" class="cta-button">
+                <a href="{{ config('app.url') }}/orders/{{ $order->id }}" class="cta-button">
                     Xem chi tiết đơn hàng
                 </a>
             </center>

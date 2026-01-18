@@ -92,8 +92,10 @@ class VNPayController extends Controller
                 SendOrderConfirmationEmailJob::dispatch($order->id);
             }
             
-            if (class_exists(SendAdminNotificationJob::class)) {
-                SendAdminNotificationJob::dispatch($order->id);
+            // Gửi thông báo cho admin
+            $adminEmail = config('mail.admin_email', config('mail.from.address'));
+            if (class_exists(SendAdminNotificationJob::class) && $adminEmail) {
+                SendAdminNotificationJob::dispatch($order->id, $adminEmail);
             }
 
             // Xóa giỏ hàng
