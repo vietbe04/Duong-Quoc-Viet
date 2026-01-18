@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Intervention\Image\ImageManager;
@@ -139,7 +140,7 @@ class ImageService
 
             $image->save($thumbnailPath);
         } catch (\Exception $e) {
-            \Log::error('Lỗi tạo thumbnail: ' . $e->getMessage());
+            Log::error('Lỗi tạo thumbnail: ' . $e->getMessage());
         }
     }
 

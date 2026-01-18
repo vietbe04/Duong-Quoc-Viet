@@ -14,6 +14,7 @@ use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Frontend\CheckoutController;
 use App\Http\Controllers\Frontend\OrderController;
 use App\Http\Controllers\Frontend\ProfileController;
+use App\Http\Controllers\Frontend\VNPayController;
 use App\Http\Controllers\Frontend\Auth\AuthController;
 
 // Admin Controllers
@@ -77,6 +78,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
     Route::get('/checkout/success/{orderNumber}', [CheckoutController::class, 'success'])->name('checkout.success');
     
+    // VNPay Payment
+    Route::get('/vnpay/create', [VNPayController::class, 'createPayment'])->name('vnpay.create');
+    
     // Orders
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{orderNumber}', [OrderController::class, 'show'])->name('orders.show');
@@ -87,6 +91,10 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'changePassword'])->name('profile.password');
 });
+
+// VNPay Return & IPN (không cần auth vì VNPay gọi)
+Route::get('/vnpay/return', [VNPayController::class, 'return'])->name('vnpay.return');
+Route::get('/vnpay/ipn', [VNPayController::class, 'ipn'])->name('vnpay.ipn');
 
 /*
 |--------------------------------------------------------------------------

@@ -58,7 +58,7 @@ class CheckoutController extends Controller
             'phone' => 'required|string|max:20',
             'address' => 'required|string',
             'note' => 'nullable|string',
-            'payment_method' => 'required|in:cod,bank_transfer,credit_card',
+            'payment_method' => 'required|in:cod,bank_transfer,vnpay',
             'agree' => 'required|accepted',
         ]);
 
@@ -99,46 +99,56 @@ class CheckoutController extends Controller
             foreach ($cart as $id => $details) {
                 $product = Product::find($id);
                 if ($product) {
+                    // Đảm bảo price luôn có giá trị
+                    $itemPrice = $details['price'] ?? $product->current_price ?? $product->regular_price ?? 0;
+                    $itemPrice = (float) $itemPrice;
+                    $itemQuantity = (int) ($details['quantity'] ?? 1);
+                    
                     OrderItem::create([
                         'order_id' => $order->id,
                         'product_id' => $product->id,
                         'product_name' => $product->name,
                         'product_image' => $product->image,
-                        'price' => $details['price'],
-                        'quantity' => $details['quantity'],
-                        'total' => $details['price'] * $details['quantity'],
+                        'price' => $itemPrice,
+                        'quantity' => $itemQuantity,
+                        'total' => $itemPrice * $itemQuantity,
                     ]);
 
                     // Decrease product quantity
-                    if ($product->quantity >= $details['quantity']) {
-                        $product->decrement('quantity', $details['quantity']);
+                    if ($product->quantity >= $itemQuantity) {
+                        $product->decrement('quantity', $itemQuantity);
                     }
                 }
             }
 
-            // Clear cart
-            session()->forget('cart');
-
             DB::commit();
 
-            // Dispatch order confirmation email via queue (non-blocking)
+            // Nếu thanh toán VNPay, chuyển hướng đến VNPay
+            if ($request->payment_method === 'vnpay') {
+                return redirect()->route('vnpay.create', ['order_id' => $order->id]);
+            }
+
+            // Clear cart cho các phương thức khác
+            session()->forget('cart');
+
+            // Gửi email xác nhận đơn hàng
             try {
-                SendOrderConfirmationEmailJob::dispatch($order->id)->onQueue('emails');
+                SendOrderConfirmationEmailJob::dispatch($order->id);
                 Log::info('Order confirmation email job dispatched: ' . $order->order_number);
             } catch (\Exception $e) {
                 Log::error('Failed to dispatch order confirmation: ' . $e->getMessage());
             }
 
-            // Dispatch admin notifications via queue (non-blocking)
+            // Gửi thông báo cho admin
             try {
                 $adminEmail = config('mail.from.address');
                 if ($adminEmail && $adminEmail !== 'admin@example.com') {
-                    SendAdminNotificationJob::dispatch($order->id, $adminEmail)->onQueue('emails');
+                    SendAdminNotificationJob::dispatch($order->id, $adminEmail);
                     Log::info('Admin notification job dispatched: ' . $adminEmail);
                 }
                 
                 $backupEmail = 'duongdinhcuongviajsc@gmail.com';
-                SendAdminNotificationJob::dispatch($order->id, $backupEmail)->onQueue('emails');
+                SendAdminNotificationJob::dispatch($order->id, $backupEmail);
                 Log::info('Admin notification job dispatched: ' . $backupEmail);
             } catch (\Exception $e) {
                 Log::error('Failed to dispatch admin notifications: ' . $e->getMessage());
@@ -149,6 +159,7 @@ class CheckoutController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Checkout error: ' . $e->getMessage());
             return redirect()->back()
                 ->with('error', 'Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!')
                 ->withInput();

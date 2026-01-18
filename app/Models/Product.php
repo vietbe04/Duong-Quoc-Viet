@@ -70,7 +70,10 @@ class Product extends Model
 
     public function getCurrentPriceAttribute()
     {
-        return $this->sale_price ?? $this->regular_price;
+        if ($this->sale_price && $this->sale_price > 0) {
+            return (float) $this->sale_price;
+        }
+        return (float) ($this->regular_price ?? 0);
     }
 
     public function getDiscountPercentAttribute()

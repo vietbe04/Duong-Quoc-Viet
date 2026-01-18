@@ -74,10 +74,12 @@
                                 <i class="fas fa-university me-2"></i> Chuyển khoản ngân hàng
                             </label>
                         </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="payment_method" id="card" value="credit_card">
-                            <label class="form-check-label" for="card">
-                                <i class="fas fa-credit-card me-2"></i> Thanh toán bằng thẻ
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="radio" name="payment_method" id="vnpay" value="vnpay">
+                            <label class="form-check-label" for="vnpay">
+                                <img src="https://sandbox.vnpayment.vn/paymentv2/images/icons/momo.svg" alt="VNPay" style="height: 24px;" class="me-2">
+                                <strong>Thanh toán qua VNPay</strong>
+                                <small class="text-muted d-block ms-4">ATM / Visa / MasterCard / JCB / QR Code</small>
                             </label>
                         </div>
                     </div>

@@ -5,18 +5,19 @@ namespace App\Http\Middleware;
 use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckPermission
 {
     public function handle(Request $request, Closure $next, $permission): Response
     {
-        if (!auth()->check()) {
+        if (!Auth::check()) {
             return redirect()->route('unified.login');
         }
 
         /** @var User $user */
-        $user = auth()->user();
+        $user = Auth::user();
 
         if (!$user->hasPermission($permission) && !$user->isSuperAdmin()) {
             return response()->view('errors.403', [

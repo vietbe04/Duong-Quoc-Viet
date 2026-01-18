@@ -4,24 +4,25 @@ namespace App\Mail;
 
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class OrderConfirmationEmail extends Mailable implements ShouldQueue
+class OrderConfirmationEmail extends Mailable
 {
     use Queueable, SerializesModels;
+
+    public Order $order;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(public Order $order)
+    public function __construct(Order $order)
     {
-        //
+        $this->order = $order;
     }
 
     /**
@@ -32,10 +33,7 @@ class OrderConfirmationEmail extends Mailable implements ShouldQueue
     public function envelope()
     {
         return new Envelope(
-            from: config('mail.from.address'),
-            to: $this->order->user->email,
-            replyTo: [config('mail.from.address')],
-            subject: "Xác nhận đơn hàng #{$this->order->id}",
+            subject: "Xác nhận đơn hàng #{$this->order->order_number}",
         );
     }
 

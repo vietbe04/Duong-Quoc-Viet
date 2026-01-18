@@ -45,10 +45,14 @@ class CartController extends Controller
 
         $cart = session()->get('cart', []);
 
-        $price = $product->current_price;
+        // Lấy giá hiện tại của sản phẩm (sale_price nếu có, nếu không thì regular_price)
+        $price = $product->current_price ?? $product->sale_price ?? $product->regular_price ?? 0;
+        $price = (float) $price;
 
         if (isset($cart[$product->id])) {
             $cart[$product->id]['quantity'] += $quantity;
+            // Cập nhật giá mới nhất
+            $cart[$product->id]['price'] = $price;
         } else {
             $cart[$product->id] = [
                 'name' => $product->name,

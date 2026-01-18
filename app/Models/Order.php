@@ -143,11 +143,15 @@ class Order extends Model
         ];
     }
 
-    public function calculateTotal()
+    public function calculateTotal(): float
     {
-        $this->subtotal = $this->items->sum('total');
-        $this->total = $this->subtotal + $this->shipping_fee - $this->discount;
-        return $this->total;
+        $subtotal = $this->items->sum('total');
+        $shippingFee = $this->shipping_fee ?? 0;
+        $discount = $this->discount ?? 0;
+        
+        $total = (float)$subtotal + (float)$shippingFee - (float)$discount;
+        
+        return $total;
     }
 }
 

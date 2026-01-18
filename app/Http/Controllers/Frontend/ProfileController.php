@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProfileController extends Controller
 {
@@ -19,14 +20,14 @@ class ProfileController extends Controller
     public function index()
     {
         /** @var User $user */
-        $user = auth()->user();
+        $user = Auth::user();
         return view('frontend.profile.index', compact('user'));
     }
 
     public function update(Request $request)
     {
         /** @var User $user */
-        $user = auth()->user();
+        $user = Auth::user();
 
         $request->validate([
             'name' => 'required|string|max:255',
