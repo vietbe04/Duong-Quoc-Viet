@@ -148,6 +148,7 @@
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                 <li><a class="dropdown-item" href="{{ route('profile.index') }}"><i class="fas fa-user me-2"></i> Tài khoản</a></li>
                                 <li><a class="dropdown-item" href="{{ route('orders.index') }}"><i class="fas fa-list me-2"></i> Đơn hàng</a></li>
+                                <li><a class="dropdown-item" href="{{ route('chat.index') }}"><i class="fas fa-comments me-2"></i> Chat hỗ trợ</a></li>
                                 @if(auth()->user()->isAdmin())
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}"><i class="fas fa-cog me-2"></i> Admin</a></li>

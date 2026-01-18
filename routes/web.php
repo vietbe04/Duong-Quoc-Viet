@@ -15,6 +15,7 @@ use App\Http\Controllers\Frontend\CheckoutController;
 use App\Http\Controllers\Frontend\OrderController;
 use App\Http\Controllers\Frontend\ProfileController;
 use App\Http\Controllers\Frontend\VNPayController;
+use App\Http\Controllers\Frontend\ChatController;
 use App\Http\Controllers\Frontend\Auth\AuthController;
 
 // Admin Controllers
@@ -26,6 +27,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\ChatController as AdminChatController;
 use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
 
 /*
@@ -90,6 +92,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'changePassword'])->name('profile.password');
+    
+    // Chat với Admin
+    Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::get('/chat/{conversation}/messages', [ChatController::class, 'getMessages'])->name('chat.messages');
+    Route::post('/chat/{conversation}/send', [ChatController::class, 'sendMessage'])->name('chat.send');
 });
 
 // VNPay Return & IPN (không cần auth vì VNPay gọi)
@@ -150,6 +157,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::middleware('permission:permissions.view')->group(function () {
             Route::resource('permissions', PermissionController::class)->except(['show']);
         });
+        
+        // Chat Management
+        Route::get('chat', [AdminChatController::class, 'index'])->name('chat.index');
+        Route::get('chat/unread-count', [AdminChatController::class, 'unreadCount'])->name('chat.unread');
+        Route::get('chat/{conversation}', [AdminChatController::class, 'show'])->name('chat.show');
+        Route::get('chat/{conversation}/messages', [AdminChatController::class, 'getMessages'])->name('chat.messages');
+        Route::post('chat/{conversation}/send', [AdminChatController::class, 'sendMessage'])->name('chat.send');
+        Route::post('chat/{conversation}/close', [AdminChatController::class, 'close'])->name('chat.close');
+        Route::post('chat/{conversation}/reopen', [AdminChatController::class, 'reopen'])->name('chat.reopen');
     });
 });
 

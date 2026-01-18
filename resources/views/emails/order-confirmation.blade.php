@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html lang="vi">
+@php
+/**
+ * @var \App\Models\Order|null $order
+ */
+@endphp
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xác nhận đơn hàng #{{ $order->id }}</title>
+    <title>Xác nhận đơn hàng {{ $order?->id ? '#' . $order->id : '' }}</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -177,7 +182,7 @@
         <!-- Content -->
         <div class="content">
             <!-- Greeting -->
-            <p>Xin chào <strong>{{ $order->customer_name }}</strong>,</p>
+            <p>Xin chào <strong>{{ $order?->customer_name ?? 'Khách hàng' }}</strong>,</p>
             <p>Đơn hàng của bạn đã được xác nhận và sẽ sớm được xử lý. Dưới đây là chi tiết đơn hàng của bạn:</p>
 
             <!-- Order Info -->
@@ -185,24 +190,24 @@
             <div class="info-box">
                 <div class="info-row">
                     <span class="label">Mã đơn hàng:</span>
-                    <span class="value">#{{ $order->id }}</span>
+                    <span class="value">#{{ $order?->id ?? 'N/A' }}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Ngày đặt hàng:</span>
-                    <span class="value">{{ $order->created_at->format('d/m/Y H:i') }}</span>
+                    <span class="value">{{ $order?->created_at?->format('d/m/Y H:i') ?? 'N/A' }}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Trạng thái:</span>
                     <span>
                         @php
-                            $statusClass = 'status-' . $order->status;
-                            $statusText = match($order->status) {
+                            $statusClass = 'status-' . ($order?->status ?? 'unknown');
+                            $statusText = match($order?->status ?? 'unknown') {
                                 'pending' => 'Chờ xử lý',
                                 'processing' => 'Đang xử lý',
                                 'shipped' => 'Đã gửi',
                                 'delivered' => 'Đã giao',
                                 'cancelled' => 'Hủy',
-                                default => $order->status
+                                default => $order?->status ?? 'Không xác định'
                             };
                         @endphp
                         <span class="status-badge {{ $statusClass }}">{{ $statusText }}</span>
@@ -222,7 +227,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($order->items as $item)
+                    @forelse($order?->items ?? [] as $item)
                     <tr>
                         <td>
                             <strong>{{ $item->product->name ?? 'Sản phẩm không xác định' }}</strong>
@@ -234,16 +239,20 @@
                         <td class="text-right">{{ number_format($item->price, 0, ',', '.') }} ₫</td>
                         <td class="text-right" style="font-weight: bold;">{{ number_format($item->quantity * $item->price, 0, ',', '.') }} ₫</td>
                     </tr>
-                    @endforeach
+                    @empty
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 20px;">Không có sản phẩm nào</td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
 
             <!-- Total -->
             <div class="total-section">
                 @php
-                    $subtotal = $order->items->sum(fn($item) => $item->quantity * $item->price);
-                    $shipping = $order->shipping_fee ?? 0;
-                    $discount = $order->discount ?? 0;
+                    $subtotal = $order?->items?->sum(fn($item) => $item->quantity * $item->price) ?? 0;
+                    $shipping = $order?->shipping_fee ?? 0;
+                    $discount = $order?->discount ?? 0;
                     $total = $subtotal + $shipping - $discount;
                 @endphp
                 <div class="total-row">
@@ -273,21 +282,21 @@
             <div class="info-box">
                 <div class="info-row">
                     <span class="label">Người nhận:</span>
-                    <span class="value">{{ $order->customer_name }}</span>
+                    <span class="value">{{ $order?->customer_name ?? 'Chưa cập nhật' }}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Điện thoại:</span>
-                    <span class="value">{{ $order->customer_phone ?? $order->user->phone ?? 'Chưa cập nhật' }}</span>
+                    <span class="value">{{ $order?->customer_phone ?? $order?->user?->phone ?? 'Chưa cập nhật' }}</span>
                 </div>
                 <div class="info-row">
                     <span class="label">Địa chỉ:</span>
-                    <span class="value">{{ $order->shipping_address ?? $order->user->address ?? 'Chưa cập nhật' }}</span>
+                    <span class="value">{{ $order?->shipping_address ?? $order?->user?->address ?? 'Chưa cập nhật' }}</span>
                 </div>
             </div>
 
             <!-- Action Button -->
             <center>
-                <a href="{{ env('APP_URL') }}/orders/{{ $order->id }}" class="cta-button">
+                <a href="{{ env('APP_URL') }}/orders/{{ $order?->id ?? '#' }}" class="cta-button">
                     Xem chi tiết đơn hàng
                 </a>
             </center>

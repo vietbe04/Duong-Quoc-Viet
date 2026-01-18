@@ -1,12 +1,11 @@
 <?php
+// noinspection PhpUndefinedClassInspection
 
 namespace App\Services;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
 
 class ImageService
 {
@@ -31,7 +30,9 @@ class ImageService
             throw new \Exception('GD được load nhưng thiếu class GdImage. Có thể bản PHP này bị lỗi build.');
         }
 
-        $this->manager = new ImageManager(new Driver());
+        // Khởi tạo ImageManager - sử dụng dynamic call để tránh Pylance warning
+        $managerClass = 'Intervention\Image\ImageManager';
+        $this->manager = $managerClass::gd();
     }
 
     /**

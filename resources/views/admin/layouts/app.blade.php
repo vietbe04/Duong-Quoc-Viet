@@ -125,6 +125,20 @@
                     </li>
                     @endhasPermission
 
+                    <li class="nav-header">HỖ TRỢ KHÁCH HÀNG</li>
+                    
+                    @if(hasPermission('view-chats'))
+                    <li class="nav-item">
+                        <a href="{{ route('admin.chat.index') }}" class="nav-link {{ request()->routeIs('admin.chat.*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-comments"></i>
+                            <p>
+                                Chat
+                                <span class="badge badge-danger right" id="unreadChatBadge" style="display: none;">0</span>
+                            </p>
+                        </a>
+                    </li>
+                    @endif
+
                     <li class="nav-header">QUẢN LÝ HỆ THỐNG</li>
                     
                     @hasPermission('users.view')
