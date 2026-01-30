@@ -1,185 +1,130 @@
-# E-Learning Website - Laravel
+# 🎓 Modern E-Learning Platform - Laravel 12
 
-Website học trực tuyến được xây dựng với Laravel, cho phép người dùng đăng ký, mua khóa học và học trực tuyến.
+[![Laravel Version](https://img.shields.io/badge/Laravel-12.x-red.svg)](https://laravel.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## 📋 Tính năng
+Một nền tảng học trực tuyến hiện đại, mạnh mẽ được xây dựng trên hệ sinh thái Laravel. Dự án đã được hiện đại hóa toàn diện với thiết kế **Premium Glassmorphism**, tối ưu hóa trải nghiệm người dùng (UX) và tích hợp các tính năng học tập thông minh.
 
-### Vai trò người dùng
+---
 
-- **Admin**: Quản lý toàn bộ hệ thống (users, courses, orders, reviews)
-- **Instructor**: Tạo và quản lý khóa học của mình
-- **Student**: Mua khóa học, học trực tuyến, đánh giá
+## ✨ Điểm Nổi Bật (Modernization Highlights)
 
-### Chức năng chính
+Hệ thống vừa được nâng cấp toàn diện về giao diện và hiệu năng:
+- **💎 Premium Design System:** Giao diện phong cách Glassmorphism hiện đại, trong suốt và tinh tế.
+- **🖋️ Typography:** Sử dụng font **Inter** cao cấp cho khả năng hiển thị văn bản sắc nét và dễ đọc.
+- **📱 Ultra Responsive:** Tối ưu hóa hiển thị hoàn hảo trên mọi thiết bị (Mobile, Tablet, Desktop).
+- **🕹️ immersive Learning Hub:** Giao diện học tập kiểu "Split-pane" chuyên nghiệp, tập trung hoàn toàn vào nội dung bài giảng.
+- **⚡ Optimized Performance:** Hệ thống assets được quản lý và tối ưu thông qua Laravel Vite.
 
-- 🔐 Đăng ký/Đăng nhập với phân quyền
-- 📚 Quản lý danh mục và khóa học
-- 🎬 Hệ thống bài học với video
-- 🛒 Giỏ hàng và thanh toán
-- 📊 Theo dõi tiến độ học tập
-- ⭐ Đánh giá khóa học
-- 👤 Quản lý hồ sơ cá nhân
+---
 
-## 🛠 Yêu cầu hệ thống
+## 📋 Tính Năng Chính (Core Features)
 
-- PHP >= 8.1
+### 👥 Phân Quyền Người Dùng
+- **Quản trị viên (Admin):** Kiểm soát toàn bộ hệ thống qua Dashboard hiện đại: quản lý khóa học, người dùng, đơn hàng và đánh giá.
+- **Giảng viên (Instructor):** Soạn thảo bài giảng, quản lý nội dung khóa học và theo dõi thống kê doanh thu.
+- **Học viên (Student):** Khám phá khóa học, mua hàng, theo dõi tiến trình học tập và kiểm tra kiến thức qua Quiz.
+
+### 📚 Tính Năng Học Tập
+- **Video Player:** Trình phát video tích hợp mượt mà (hỗ trợ Youtube & Video local).
+- **Interactive Quiz:** Hệ thống kiểm tra kiến thức tự động sau mỗi bài học để mở khóa bài tiếp theo.
+- **Progress Tracking:** Theo dõi tỷ lệ hoàn thành khóa học theo thời gian thực.
+- **Review System:** Đánh giá và phản hồi chất lượng khóa học một cách minh bạch.
+
+---
+
+## � Công Nghệ Sử Dụng (Tech Stack)
+
+### Backend
+- **Framework:** Laravel 12.x
+- **Language:** PHP 8.2+
+- **Database:** MySQL 8.0 / MariaDB
+
+### Frontend
+- **Blade Template:** Công cụ rendering mạnh mẽ của Laravel.
+- **Styling:** CSS3 (Custom Glassmorphism) & Bootstrap 5.3.
+- **Assets:** Vite (Build tool thế hệ mới).
+- **Components:** Font Awesome 6, jQuery, SweetAlert2.
+
+---
+
+## 🚀 Hướng Dẫn Cài Đặt (Installation)
+
+### 1. Yêu cầu hệ thống
+- PHP >= 8.2
 - Composer
-- MySQL >= 5.7
-- Node.js >= 16.x
+- Node.js & NPM
+- MySQL
 
-## 🚀 Cài đặt
-
-### 1. Clone dự án
+### 2. Các bước thiết lập
 
 ```bash
-git clone <repository-url>
-cd webkhoahoc
-```
+# Clone dự án
+git clone https://github.com/your-username/duong-quoc-viet.git
+cd duong-quoc-viet
 
-### 2. Cài đặt dependencies
-
-```bash
+# Cài đặt PHP dependencies
 composer install
+
+# Cài đặt Frontend dependencies
 npm install
-```
 
-### 3. Cấu hình môi trường
-
-```bash
+# Tạo file cấu hình
 cp .env.example .env
 php artisan key:generate
-```
 
-### 4. Cấu hình database
+# Cấu hình Database trong file .env (DB_DATABASE, DB_USERNAME, DB_PASSWORD)
 
-Mở file `.env` và cập nhật thông tin database:
+# Chạy Migration & Seeder (Tạo dữ liệu mẫu)
+php artisan migrate --seed
 
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=webkhoahoc
-DB_USERNAME=root
-DB_PASSWORD=
-```
-
-### 5. Chạy migrations và seeder
-
-```bash
-php artisan migrate
-php artisan db:seed
-```
-
-### 6. Tạo symbolic link cho storage
-
-```bash
+# Tạo liên kết storage
 php artisan storage:link
-```
 
-### 7. Chạy ứng dụng
-
-```bash
+# Khởi chạy dự án
 php artisan serve
+npm run dev
 ```
 
-Truy cập: http://localhost:8000
+Truy cập: `http://localhost:8000`
 
-## 👤 Tài khoản demo
+---
 
-| Vai trò    | Email                   | Mật khẩu |
-| ---------- | ----------------------- | -------- |
-| Admin      | admin@example.com       | password |
-| Instructor | instructor1@example.com | password |
-| Student    | student1@example.com    | password |
+## 🧪 Tài Khoản Thử Nghiệm (Demo Accounts)
 
-## 📁 Cấu trúc thư mục
+| Vai trò | Email | Mật khẩu |
+| :--- | :--- | :--- |
+| **Admin** | `admin@example.com` | `password` |
+| **Instructor** | `instructor@example.com` | `password` |
+| **Student** | `student@example.com` | `password` |
 
-```
+---
+
+## 📁 Cấu Trúc Dự Án (Project Structure)
+
+```text
 app/
-├── Http/
-│   ├── Controllers/
-│   │   ├── Auth/           # Xử lý đăng nhập, đăng ký
-│   │   ├── Admin/          # Controllers cho Admin
-│   │   ├── Instructor/     # Controllers cho Giảng viên
-│   │   └── ...             # Controllers công khai
-│   └── Middleware/         # Middleware phân quyền
-├── Models/                 # Eloquent Models
-└── Policies/               # Authorization Policies
+├── Http/Controllers/Admin/      # Quản trị hệ thống
+├── Http/Controllers/Instructor/ # Quản lý bài giảng
+├── Http/Controllers/           # Xử lý Logic công khai & Học viên
+├── Models/                      # Định nghĩa thực thể dữ liệu
+└── Policies/                    # Chính sách phân quyền
 
 resources/
 ├── views/
-│   ├── admin/             # Views cho Admin Panel
-│   ├── instructor/        # Views cho Instructor Panel
-│   ├── auth/              # Views đăng nhập/đăng ký
-│   ├── cart/              # Giỏ hàng
-│   ├── checkout/          # Thanh toán
-│   ├── courses/           # Chi tiết khóa học
-│   ├── learning/          # Giao diện học tập
-│   ├── profile/           # Hồ sơ cá nhân
-│   └── layouts/           # Layout templates
+│   ├── layouts/     # Layouts (App, Admin, Auth)
+│   ├── courses/     # Chi tiết & Danh sách khóa học
+│   ├── learning/    # Interface học tập (Lesson, Quiz)
+│   ├── profile/     # Dashboard cá nhân
+│   └── home.blade.php # Trang chủ hiện đại
+└── css/app.css      # Cấu hình Design System
 ```
 
-## 🗃️ Database Schema
+---
 
-### Các bảng chính:
+## 📄 Giấy Phép (License)
 
-- **users**: Người dùng (admin, instructor, student)
-- **categories**: Danh mục khóa học
-- **courses**: Khóa học
-- **lessons**: Bài học
-- **course_user**: Đăng ký khóa học (pivot)
-- **lesson_progress**: Tiến độ học tập
-- **orders**: Đơn hàng
-- **order_items**: Chi tiết đơn hàng
-- **carts**: Giỏ hàng
-- **reviews**: Đánh giá
+Dự án này được phát hành dưới giấy phép **MIT**.
 
-## 🔧 Công nghệ sử dụng
-
-- **Backend**: Laravel 10+
-- **Frontend**: Blade Template, Bootstrap 5
-- **Database**: MySQL
-- **Icons**: Font Awesome 6
-- **JavaScript**: jQuery
-
-## 📝 Routes chính
-
-### Public
-
-- `GET /` - Trang chủ
-- `GET /courses/{slug}` - Chi tiết khóa học
-
-### Auth
-
-- `GET /login` - Đăng nhập
-- `GET /register` - Đăng ký
-- `POST /logout` - Đăng xuất
-
-### Student (yêu cầu đăng nhập)
-
-- `GET /cart` - Giỏ hàng
-- `GET /checkout` - Thanh toán
-- `GET /learning/{course}` - Vào học
-- `GET /profile` - Hồ sơ cá nhân
-
-### Admin (prefix: /admin)
-
-- Dashboard, Categories, Courses, Lessons, Users, Orders, Reviews
-
-### Instructor (prefix: /instructor)
-
-- Dashboard, Courses, Lessons
-
-## 📄 License
-
-MIT License
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+*Phát triển bởi Dương Quốc Việt - 2026*
