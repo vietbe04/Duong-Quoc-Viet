@@ -2,15 +2,13 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -21,9 +19,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'phone',
+        'role',
         'avatar',
-        'address',
+        'phone',
+        'bio',
         'status',
     ];
 
@@ -38,111 +37,134 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be cast.
+     * Get the attributes that should be cast.
      *
-     * @var array<string, string>
+     * @return array<string, string>
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
-
-
-
-    public function roles()
+    protected function casts(): array
     {
-        return $this->belongsToMany(Role::class, 'user_role');
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
     }
 
-    public function role()
+    /**
+     * Check if user is admin
+     */
+    public function isAdmin(): bool
     {
-        return $this->belongsTo(Role::class);
+        return $this->role === 'admin';
     }
 
-    public function posts()
+    /**
+     * Check if user is instructor
+     */
+    public function isInstructor(): bool
     {
-        return $this->hasMany(Post::class);
+        return $this->role === 'instructor';
     }
 
+    /**
+     * Check if user is student
+     */
+    public function isStudent(): bool
+    {
+        return $this->role === 'student';
+    }
+
+    /**
+     * Check if user is active
+     */
+    public function isActive(): bool
+    {
+        return $this->status === 'active';
+    }
+
+    /**
+     * Courses created by instructor
+     */
+    public function instructorCourses()
+    {
+        return $this->hasMany(Course::class, 'instructor_id');
+    }
+
+    /**
+     * Courses enrolled by student
+     */
+    public function enrolledCourses()
+    {
+        return $this->belongsToMany(Course::class, 'course_user')
+            ->withPivot(['enrolled_at', 'progress', 'completed_at'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Alias for enrolledCourses - purchased courses
+     */
+    public function purchasedCourses()
+    {
+        return $this->belongsToMany(Course::class, 'course_user')
+            ->withPivot(['enrolled_at', 'progress', 'completed_at'])
+            ->withTimestamps();
+    }
+
+    /**
+     * User's cart items
+     */
+    public function cartItems()
+    {
+        return $this->hasMany(Cart::class);
+    }
+
+    /**
+     * User's orders
+     */
     public function orders()
     {
         return $this->hasMany(Order::class);
     }
 
     /**
-     * Check if user has a specific role
+     * User's reviews
      */
-    public function hasRole($role): bool
+    public function reviews()
     {
-        if (!$this->role) {
-            return false;
-        }
-
-        if (is_string($role)) {
-            return $this->role->slug === $role;
-        }
-        return $this->role->id === $role;
+        return $this->hasMany(Review::class);
     }
 
     /**
-     * Check if user has a specific permission
+     * User's lesson progress
      */
-    public function hasPermission($permission): bool
+    public function lessonProgress()
     {
-        if (!$this->role) {
-            return false;
-        }
-
-        return $this->role->hasPermission($permission);
+        return $this->hasMany(LessonProgress::class);
     }
 
     /**
-     * Check if user is admin or super-admin
+     * Check if user has purchased a course
      */
-    public function isAdmin(): bool
+    public function hasPurchased(Course $course): bool
     {
-        return $this->hasRole('admin') || $this->hasRole('super-admin');
+        return $this->enrolledCourses()->where('course_id', $course->id)->exists();
     }
 
     /**
-     * Check if user is super-admin
+     * Check if user has course in cart
      */
-    public function isSuperAdmin(): bool
+    public function hasInCart(Course $course): bool
     {
-        return $this->hasRole('super-admin');
+        return $this->cartItems()->where('course_id', $course->id)->exists();
     }
 
     /**
-     * Assign a role to user
+     * Get avatar URL
      */
-    public function assignRole($role)
-    {
-        if (is_string($role)) {
-            $role = Role::where('slug', $role)->firstOrFail();
-        }
-        $this->role_id = $role->id;
-        $this->save();
-    }
-
-    /**
-     * Remove role from user
-     */
-    public function removeRole()
-    {
-        $this->role_id = null;
-        $this->save();
-    }
-
-    public function getAvatarUrlAttribute()
+    public function getAvatarUrlAttribute(): string
     {
         if ($this->avatar) {
             return asset('storage/' . $this->avatar);
         }
-        return asset('images/default-avatar.png');
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=random';
     }
-
-    public function scopeActive($query)
-    {
-        return $query->where('status', 'active');
-    }
-
 }

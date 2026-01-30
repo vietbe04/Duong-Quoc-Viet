@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Category extends Model
 {
@@ -14,43 +15,69 @@ class Category extends Model
         'slug',
         'description',
         'image',
-        'parent_id',
-        'type',
         'status',
     ];
 
-    public function parent()
+    /**
+     * Boot method
+     */
+    protected static function boot()
     {
-        return $this->belongsTo(Category::class, 'parent_id');
+        parent::boot();
+
+        static::creating(function ($category) {
+            if (empty($category->slug)) {
+                $category->slug = Str::slug($category->name);
+            }
+        });
+
+        static::updating(function ($category) {
+            if ($category->isDirty('name') && !$category->isDirty('slug')) {
+                $category->slug = Str::slug($category->name);
+            }
+        });
     }
 
-    public function children()
+    /**
+     * Courses in this category
+     */
+    public function courses()
     {
-        return $this->hasMany(Category::class, 'parent_id');
+        return $this->hasMany(Course::class);
     }
 
-    public function posts()
+    /**
+     * Active courses in this category
+     */
+    public function activeCourses()
     {
-        return $this->hasMany(Post::class);
+        return $this->hasMany(Course::class)->where('status', 'published');
     }
 
-    public function products()
+    /**
+     * Check if category is active
+     */
+    public function isActive(): bool
     {
-        return $this->hasMany(Product::class);
+        return $this->status === 'active';
     }
 
+    /**
+     * Scope for active categories
+     */
     public function scopeActive($query)
     {
         return $query->where('status', 'active');
     }
 
-    public function scopePostType($query)
+    /**
+     * Get image URL
+     */
+    public function getImageUrlAttribute(): ?string
     {
-        return $query->where('type', 'post');
-    }
-
-    public function scopeProductType($query)
-    {
-        return $query->where('type', 'product');
+        if ($this->image) {
+            return asset('storage/' . $this->image);
+        }
+        return null;
     }
 }

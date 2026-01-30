@@ -11,34 +11,28 @@ class OrderItem extends Model
 
     protected $fillable = [
         'order_id',
-        'product_id',
-        'product_name',
-        'product_image',
+        'course_id',
+        'course_title',
         'price',
-        'quantity',
-        'total',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
-        'total' => 'decimal:2',
     ];
 
+    /**
+     * Order this item belongs to
+     */
     public function order()
     {
         return $this->belongsTo(Order::class);
     }
 
-    public function product()
+    /**
+     * Course in this item
+     */
+    public function course()
     {
-        return $this->belongsTo(Product::class);
-    }
-
-    public function getProductImageUrlAttribute()
-    {
-        if ($this->product_image) {
-            return asset('storage/' . $this->product_image);
-        }
-        return asset('images/default-product.jpg');
+        return $this->belongsTo(Course::class);
     }
 }

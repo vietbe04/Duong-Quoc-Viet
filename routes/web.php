@@ -2,174 +2,191 @@
 
 use Illuminate\Support\Facades\Route;
 
-// Unified Auth
-use App\Http\Controllers\UnifiedAuthController;
-
-
-// Frontend Controllers
-use App\Http\Controllers\Frontend\HomeController;
-use App\Http\Controllers\Frontend\PostController;
-use App\Http\Controllers\Frontend\ProductController;
-use App\Http\Controllers\Frontend\CartController;
-use App\Http\Controllers\Frontend\CheckoutController;
-use App\Http\Controllers\Frontend\OrderController;
-use App\Http\Controllers\Frontend\ProfileController;
-use App\Http\Controllers\Frontend\VNPayController;
-use App\Http\Controllers\Frontend\ChatController;
-use App\Http\Controllers\Frontend\Auth\AuthController;
+// Public Controllers
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\LearningController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReviewController;
 
 // Admin Controllers
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\PostController as AdminPostController;
-use App\Http\Controllers\Admin\ProductController as AdminProductController;
-use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\RoleController;
-use App\Http\Controllers\Admin\PermissionController;
-use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\CourseController as AdminCourseController;
+use App\Http\Controllers\Admin\LessonController as AdminLessonController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
-use App\Http\Controllers\Admin\ChatController as AdminChatController;
-use App\Http\Controllers\Admin\Auth\LoginController as AdminLoginController;
+use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
+
+// Instructor Controllers
+use App\Http\Controllers\Instructor\DashboardController as InstructorDashboardController;
+use App\Http\Controllers\Instructor\CourseController as InstructorCourseController;
+use App\Http\Controllers\Instructor\LessonController as InstructorLessonController;
 
 /*
 |--------------------------------------------------------------------------
-| Unified Auth Routes
+| Web Routes
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('guest')->group(function () {
-    Route::get('/login', [UnifiedAuthController::class, 'showLoginForm'])->name('unified.login');
-    Route::post('/login', [UnifiedAuthController::class, 'login']);
-    Route::get('/register', [UnifiedAuthController::class, 'showRegisterForm'])->name('unified.register');
-    Route::post('/register', [UnifiedAuthController::class, 'register']);
-});
+// ========================================
+// PUBLIC ROUTES
+// ========================================
 
-Route::post('/logout', [UnifiedAuthController::class, 'logout'])->name('logout')->middleware('auth');
-
-// Redirect old routes to unified auth
-Route::redirect('/admin/login', '/login');
-Route::redirect('/register-old', '/register');
-
-/*
-|--------------------------------------------------------------------------
-| Frontend Routes
-|--------------------------------------------------------------------------
-*/
-
-// Home
+// Trang chủ
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// Posts
-Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
-Route::get('/posts/{slug}', [PostController::class, 'show'])->name('posts.show');
+// Chi tiết khóa học
+Route::get('/courses/{slug}', [HomeController::class, 'courseDetail'])->name('courses.detail');
 
-// Products
-Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-Route::get('/products/{slug}', [ProductController::class, 'show'])->name('products.show');
+// ========================================
+// AUTHENTICATION ROUTES
+// ========================================
 
-// Cart
-Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-Route::post('/cart/add/{product_id?}', [CartController::class, 'add'])->name('cart.add');
-Route::post('/cart/update/{product_id?}', [CartController::class, 'update'])->name('cart.update');
-Route::post('/cart/remove/{product_id?}', [CartController::class, 'remove'])->name('cart.remove');
-Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
-Route::get('/cart/get', [CartController::class, 'getCart'])->name('cart.get');
+Route::middleware('guest')->group(function () {
+    // Đăng nhập
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [LoginController::class, 'login']);
 
-// Checkout
-Route::middleware('auth')->group(function () {
-    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-    Route::get('/checkout/success/{orderNumber}', [CheckoutController::class, 'success'])->name('checkout.success');
-    
-    // VNPay Payment
-    Route::get('/vnpay/create', [VNPayController::class, 'createPayment'])->name('vnpay.create');
-    
-    // Orders
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{orderNumber}', [OrderController::class, 'show'])->name('orders.show');
-    Route::post('/orders/{orderNumber}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
-    
-    // Profile
-    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
-    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::put('/profile/password', [ProfileController::class, 'changePassword'])->name('profile.password');
-    
-    // Chat với Admin
-    Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
-    Route::get('/chat/{conversation}/messages', [ChatController::class, 'getMessages'])->name('chat.messages');
-    Route::post('/chat/{conversation}/send', [ChatController::class, 'sendMessage'])->name('chat.send');
+    // Đăng ký
+    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/register', [RegisterController::class, 'register']);
 });
 
-// VNPay Return & IPN (không cần auth vì VNPay gọi)
-Route::get('/vnpay/return', [VNPayController::class, 'return'])->name('vnpay.return');
-Route::get('/vnpay/ipn', [VNPayController::class, 'ipn'])->name('vnpay.ipn');
+// Đăng xuất (hỗ trợ cả GET và POST để tương thích)
+Route::get('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
+Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth');
 
-/*
-|--------------------------------------------------------------------------
-| Admin Routes
-|--------------------------------------------------------------------------
-*/
+// ========================================
+// STUDENT ROUTES (Authenticated Users)
+// ========================================
 
-Route::prefix('admin')->name('admin.')->group(function () {
-    // Auth Routes - Redirect to unified login
-    Route::middleware('guest')->group(function () {
-        Route::redirect('/login', '/login');
+Route::middleware(['auth'])->group(function () {
+    // Giỏ hàng
+    Route::prefix('cart')->name('cart.')->group(function () {
+        Route::get('/', [CartController::class, 'index'])->name('index');
+        Route::post('/add', [CartController::class, 'add'])->name('add');
+        Route::delete('/{id}', [CartController::class, 'remove'])->name('remove');
+        Route::delete('/', [CartController::class, 'clear'])->name('clear');
+        Route::get('/count', [CartController::class, 'count'])->name('count');
     });
 
-    // Protected Admin Routes
-    Route::middleware('admin')->group(function () {
-        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-        
-        // Categories
-        Route::middleware('permission:categories.view')->group(function () {
-            Route::resource('categories', CategoryController::class)->except(['show']);
-        });
-        
-        // Posts
-        Route::middleware('permission:posts.view')->group(function () {
-            Route::resource('posts', AdminPostController::class);
-        });
-        
-        // Products
-        Route::middleware('permission:products.view')->group(function () {
-            Route::resource('products', AdminProductController::class);
-        });
-        
-        // Orders
-        Route::middleware('permission:orders.view')->group(function () {
-            Route::get('orders', [AdminOrderController::class, 'index'])->name('orders.index');
-            Route::get('orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
-            Route::put('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
-            Route::put('orders/{order}/payment-status', [AdminOrderController::class, 'updatePaymentStatus'])->name('orders.updatePaymentStatus');
-            Route::delete('orders/{order}', [AdminOrderController::class, 'destroy'])->name('orders.destroy');
-        });
-        
-        // Users
-        Route::middleware('permission:users.view')->group(function () {
-            Route::resource('users', UserController::class);
-        });
-        
-        // Roles - Only Super Admin
-        Route::middleware('permission:roles.view')->group(function () {
-            Route::resource('roles', RoleController::class);
-        });
-        
-        // Permissions - Only Super Admin
-        Route::middleware('permission:permissions.view')->group(function () {
-            Route::resource('permissions', PermissionController::class)->except(['show']);
-        });
-        
-        // Chat Management
-        Route::get('chat', [AdminChatController::class, 'index'])->name('chat.index');
-        Route::get('chat/unread-count', [AdminChatController::class, 'unreadCount'])->name('chat.unread');
-        Route::get('chat/{conversation}', [AdminChatController::class, 'show'])->name('chat.show');
-        Route::get('chat/{conversation}/messages', [AdminChatController::class, 'getMessages'])->name('chat.messages');
-        Route::post('chat/{conversation}/send', [AdminChatController::class, 'sendMessage'])->name('chat.send');
-        Route::post('chat/{conversation}/close', [AdminChatController::class, 'close'])->name('chat.close');
-        Route::post('chat/{conversation}/reopen', [AdminChatController::class, 'reopen'])->name('chat.reopen');
+    // Thanh toán
+    Route::prefix('checkout')->name('checkout.')->group(function () {
+        Route::get('/', [CheckoutController::class, 'index'])->name('index');
+        Route::post('/', [CheckoutController::class, 'process'])->name('process');
+        Route::get('/success/{orderId}', [CheckoutController::class, 'success'])->name('success');
+    });
+
+    // Học khóa học
+    Route::prefix('learn')->name('learn.')->group(function () {
+        Route::get('/{courseSlug}', [LearningController::class, 'course'])->name('course');
+        Route::get('/{courseSlug}/{lessonSlug}', [LearningController::class, 'lesson'])->name('lesson');
+        Route::post('/complete/{lessonId}', [LearningController::class, 'markComplete'])->name('complete');
+        Route::post('/incomplete/{lessonId}', [LearningController::class, 'markIncomplete'])->name('incomplete');
+    });
+
+    // Trang cá nhân
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [ProfileController::class, 'index'])->name('index');
+        Route::put('/update', [ProfileController::class, 'update'])->name('update');
+        Route::put('/password', [ProfileController::class, 'changePassword'])->name('password');
+        Route::get('/orders', [ProfileController::class, 'orders'])->name('orders');
+        Route::get('/orders/{id}', [ProfileController::class, 'orderDetail'])->name('orders.detail');
+    });
+
+    // Đánh giá khóa học
+    Route::prefix('reviews')->name('reviews.')->group(function () {
+        Route::post('/{courseId}', [ReviewController::class, 'store'])->name('store');
+        Route::put('/{id}', [ReviewController::class, 'update'])->name('update');
+        Route::delete('/{id}', [ReviewController::class, 'destroy'])->name('destroy');
     });
 });
 
-// Test route for permissions
-Route::get('/test-permissions', function () {
-    return view('test-permissions');
-})->middleware('admin')->name('test.permissions');
+// ========================================
+// ADMIN ROUTES
+// ========================================
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Dashboard
+    Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+    // Quản lý danh mục
+    Route::resource('categories', AdminCategoryController::class);
+
+    // Quản lý khóa học
+    Route::resource('courses', AdminCourseController::class);
+
+    // Quản lý bài học (nested resource)
+    Route::resource('courses.lessons', AdminLessonController::class);
+    Route::post('courses/{course}/lessons/order', [AdminLessonController::class, 'updateOrder'])
+        ->name('courses.lessons.order');
+
+    // Quản lý người dùng
+    Route::resource('users', AdminUserController::class);
+    Route::post('users/{user}/toggle-status', [AdminUserController::class, 'toggleStatus'])
+        ->name('users.toggle-status');
+
+    // Quản lý đơn hàng
+    Route::resource('orders', AdminOrderController::class)->only(['index', 'show', 'edit', 'update', 'destroy']);
+    Route::patch('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])
+        ->name('orders.update-status');
+
+    // Quản lý đánh giá
+    Route::get('reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
+    Route::post('reviews/{review}/approve', [AdminReviewController::class, 'approve'])
+        ->name('reviews.approve');
+    Route::post('reviews/{review}/reject', [AdminReviewController::class, 'reject'])
+        ->name('reviews.reject');
+    Route::delete('reviews/{review}', [AdminReviewController::class, 'destroy'])
+        ->name('reviews.destroy');
+});
+
+// ========================================
+// INSTRUCTOR ROUTES
+// ========================================
+
+use App\Http\Controllers\Instructor\QuizQuestionController;
+
+Route::middleware(['auth', 'instructor'])->prefix('instructor')->name('instructor.')->group(function () {
+    // Dashboard
+    Route::get('/', [InstructorDashboardController::class, 'index'])->name('dashboard');
+
+    // Quản lý khóa học của instructor
+    Route::resource('courses', InstructorCourseController::class);
+
+    // Quản lý bài học
+    Route::resource('courses.lessons', InstructorLessonController::class);
+    Route::post('courses/{course}/lessons/order', [InstructorLessonController::class, 'updateOrder'])
+        ->name('courses.lessons.order');
+    
+    // Quản lý quiz questions
+    Route::resource('courses.lessons.quiz', QuizQuestionController::class);
+});
+
+// ========================================
+// API ROUTES
+// ========================================
+
+use App\Http\Controllers\Api\QuizController;
+
+// DEBUG ROUTE - Remove in production
+Route::get('api/debug/lesson/{lesson}', function($lesson) {
+    $lessonModel = \App\Models\Lesson::find($lesson);
+    if (!$lessonModel) return response()->json(['error' => 'Lesson not found'], 404);
+    return response()->json([
+        'lesson_id' => $lessonModel->id,
+        'lesson_title' => $lessonModel->title,
+        'quiz_questions_count' => $lessonModel->quizQuestions()->count(),
+        'quiz_questions_sample' => $lessonModel->quizQuestions()->select('id', 'question', 'lesson_id')->limit(3)->get(),
+    ]);
+});
+
+Route::prefix('api')->middleware('auth')->group(function () {
+    // Quiz API
+    Route::get('lessons/{lesson}/quiz', [QuizController::class, 'getQuestions'])->name('api.quiz.questions');
+    Route::post('lessons/{lesson}/quiz', [QuizController::class, 'submitAnswers'])->name('api.quiz.submit');
+});

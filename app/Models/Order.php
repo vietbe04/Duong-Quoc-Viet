@@ -10,148 +10,157 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-        'order_number',
+        'order_code',
         'user_id',
-        'customer_name',
-        'customer_email',
-        'customer_phone',
-        'shipping_address',
-        'notes',
         'subtotal',
-        'shipping_fee',
         'discount',
         'total',
-        'status',
         'payment_method',
-        'payment_status',
+        'status',
+        'note',
+        'paid_at',
+    ];
+
+    protected $attributes = [
+        'subtotal' => 0,
+        'discount' => 0,
+        'status' => 'pending',
     ];
 
     protected $casts = [
         'subtotal' => 'decimal:2',
-        'shipping_fee' => 'decimal:2',
         'discount' => 'decimal:2',
         'total' => 'decimal:2',
+        'paid_at' => 'datetime',
     ];
 
-    const STATUS_PENDING = 'pending';
-    const STATUS_CONFIRMED = 'confirmed';
-    const STATUS_PROCESSING = 'processing';
-    const STATUS_SHIPPED = 'shipped';
-    const STATUS_DELIVERED = 'delivered';
-    const STATUS_CANCELLED = 'cancelled';
+    /**
+     * Boot method
+     */
+    protected static function boot()
+    {
+        parent::boot();
 
-    const PAYMENT_COD = 'cod';
-    const PAYMENT_BANK_TRANSFER = 'bank_transfer';
-    const PAYMENT_ONLINE = 'online';
+        static::creating(function ($order) {
+            if (empty($order->order_code)) {
+                $order->order_code = 'ORD-' . strtoupper(uniqid());
+            }
+        });
+    }
 
-    const PAYMENT_STATUS_PENDING = 'pending';
-    const PAYMENT_STATUS_PAID = 'paid';
-    const PAYMENT_STATUS_FAILED = 'failed';
-    const PAYMENT_STATUS_REFUNDED = 'refunded';
-
+    /**
+     * User who placed the order
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Items in this order
+     */
     public function items()
     {
         return $this->hasMany(OrderItem::class);
     }
 
-    public function getNameAttribute()
+    /**
+     * Check if order is pending
+     */
+    public function isPending(): bool
     {
-        return $this->customer_name;
+        return $this->status === 'pending';
     }
 
-    public function getPhoneAttribute()
+    /**
+     * Check if order is completed
+     */
+    public function isCompleted(): bool
     {
-        return $this->customer_phone;
+        return $this->status === 'completed';
     }
 
-    public function getEmailAttribute()
+    /**
+     * Check if order is cancelled
+     */
+    public function isCancelled(): bool
     {
-        return $this->customer_email;
+        return $this->status === 'cancelled';
     }
 
-    public function getAddressAttribute()
+    /**
+     * Get status text in Vietnamese
+     */
+    public function getStatusTextAttribute(): string
     {
-        return $this->shipping_address;
-    }
-
-    public function getNoteAttribute()
-    {
-        return $this->notes;
-    }
-
-    public function getPaymentMethodLabelAttribute()
-    {
-        $methods = [
-            'cod' => 'Thanh toán khi nhận hàng (COD)',
-            'bank_transfer' => 'Chuyển khoản ngân hàng',
-            'online' => 'Thanh toán online',
-        ];
-        return $methods[$this->payment_method] ?? $this->payment_method;
-    }
-
-    public function getStatusLabelAttribute()
-    {
-        $labels = [
+        return match($this->status) {
             'pending' => 'Chờ xử lý',
-            'confirmed' => 'Đã xác nhận',
             'processing' => 'Đang xử lý',
-            'shipping' => 'Đang giao',
-            'delivered' => 'Đã giao',
+            'completed' => 'Hoàn thành',
             'cancelled' => 'Đã hủy',
-        ];
-        return $labels[$this->status] ?? $this->status;
+            default => 'Không xác định',
+        };
     }
 
-    public static function generateOrderNumber()
+    /**
+     * Get status badge class
+     */
+    public function getStatusBadgeAttribute(): string
     {
-        return 'ORD-' . date('YmdHis') . '-' . rand(1000, 9999);
+        return match($this->status) {
+            'pending' => 'warning',
+            'processing' => 'info',
+            'completed' => 'success',
+            'cancelled' => 'danger',
+            default => 'secondary',
+        };
     }
 
-    public static function getStatuses()
+    /**
+     * Get payment method text in Vietnamese
+     */
+    public function getPaymentMethodTextAttribute(): string
     {
-        return [
-            self::STATUS_PENDING => 'Chờ xử lý',
-            self::STATUS_CONFIRMED => 'Đã xác nhận',
-            self::STATUS_PROCESSING => 'Đang xử lý',
-            self::STATUS_SHIPPED => 'Đang giao hàng',
-            self::STATUS_DELIVERED => 'Đã giao hàng',
-            self::STATUS_CANCELLED => 'Đã hủy',
-        ];
+        return match($this->payment_method) {
+            'cod' => 'Thanh toán khi nhận hàng',
+            'bank_transfer' => 'Chuyển khoản ngân hàng',
+            'momo' => 'Ví MoMo',
+            'vnpay' => 'VNPay',
+            default => 'Không xác định',
+        };
     }
 
-    public static function getPaymentMethods()
+    /**
+     * Mark order as completed and enroll user in courses
+     */
+    public function markAsCompleted(): void
     {
-        return [
-            self::PAYMENT_COD => 'Thanh toán khi nhận hàng',
-            self::PAYMENT_BANK_TRANSFER => 'Chuyển khoản ngân hàng',
-            self::PAYMENT_ONLINE => 'Thanh toán online',
-        ];
+        $this->update([
+            'status' => 'completed',
+            'paid_at' => now(),
+        ]);
+
+        // Enroll user in all courses
+        foreach ($this->items as $item) {
+            $this->user->enrolledCourses()->syncWithoutDetaching([
+                $item->course_id => ['enrolled_at' => now()]
+            ]);
+        }
     }
 
-    public static function getPaymentStatuses()
+    /**
+     * Scope for pending orders
+     */
+    public function scopePending($query)
     {
-        return [
-            self::PAYMENT_STATUS_PENDING => 'Chờ thanh toán',
-            self::PAYMENT_STATUS_PAID => 'Đã thanh toán',
-            self::PAYMENT_STATUS_FAILED => 'Thanh toán thất bại',
-            self::PAYMENT_STATUS_REFUNDED => 'Đã hoàn tiền',
-        ];
+        return $query->where('status', 'pending');
     }
 
-    public function calculateTotal(): float
+    /**
+     * Scope for completed orders
+     */
+    public function scopeCompleted($query)
     {
-        $subtotal = $this->items->sum('total');
-        $shippingFee = $this->shipping_fee ?? 0;
-        $discount = $this->discount ?? 0;
-        
-        $total = (float)$subtotal + (float)$shippingFee - (float)$discount;
-        
-        return $total;
+        return $query->where('status', 'completed');
     }
 }
-

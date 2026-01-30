@@ -1,59 +1,178 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# E-Learning Website - Laravel
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Website học trực tuyến được xây dựng với Laravel, cho phép người dùng đăng ký, mua khóa học và học trực tuyến.
 
-## About Laravel
+## 📋 Tính năng
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Vai trò người dùng
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Admin**: Quản lý toàn bộ hệ thống (users, courses, orders, reviews)
+- **Instructor**: Tạo và quản lý khóa học của mình
+- **Student**: Mua khóa học, học trực tuyến, đánh giá
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Chức năng chính
 
-## Learning Laravel
+- 🔐 Đăng ký/Đăng nhập với phân quyền
+- 📚 Quản lý danh mục và khóa học
+- 🎬 Hệ thống bài học với video
+- 🛒 Giỏ hàng và thanh toán
+- 📊 Theo dõi tiến độ học tập
+- ⭐ Đánh giá khóa học
+- 👤 Quản lý hồ sơ cá nhân
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🛠 Yêu cầu hệ thống
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- PHP >= 8.1
+- Composer
+- MySQL >= 5.7
+- Node.js >= 16.x
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 🚀 Cài đặt
 
-## Laravel Sponsors
+### 1. Clone dự án
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+```bash
+git clone <repository-url>
+cd webkhoahoc
+```
 
-### Premium Partners
+### 2. Cài đặt dependencies
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+```bash
+composer install
+npm install
+```
 
-## Contributing
+### 3. Cấu hình môi trường
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-## Code of Conduct
+### 4. Cấu hình database
+
+Mở file `.env` và cập nhật thông tin database:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=webkhoahoc
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+### 5. Chạy migrations và seeder
+
+```bash
+php artisan migrate
+php artisan db:seed
+```
+
+### 6. Tạo symbolic link cho storage
+
+```bash
+php artisan storage:link
+```
+
+### 7. Chạy ứng dụng
+
+```bash
+php artisan serve
+```
+
+Truy cập: http://localhost:8000
+
+## 👤 Tài khoản demo
+
+| Vai trò    | Email                   | Mật khẩu |
+| ---------- | ----------------------- | -------- |
+| Admin      | admin@example.com       | password |
+| Instructor | instructor1@example.com | password |
+| Student    | student1@example.com    | password |
+
+## 📁 Cấu trúc thư mục
+
+```
+app/
+├── Http/
+│   ├── Controllers/
+│   │   ├── Auth/           # Xử lý đăng nhập, đăng ký
+│   │   ├── Admin/          # Controllers cho Admin
+│   │   ├── Instructor/     # Controllers cho Giảng viên
+│   │   └── ...             # Controllers công khai
+│   └── Middleware/         # Middleware phân quyền
+├── Models/                 # Eloquent Models
+└── Policies/               # Authorization Policies
+
+resources/
+├── views/
+│   ├── admin/             # Views cho Admin Panel
+│   ├── instructor/        # Views cho Instructor Panel
+│   ├── auth/              # Views đăng nhập/đăng ký
+│   ├── cart/              # Giỏ hàng
+│   ├── checkout/          # Thanh toán
+│   ├── courses/           # Chi tiết khóa học
+│   ├── learning/          # Giao diện học tập
+│   ├── profile/           # Hồ sơ cá nhân
+│   └── layouts/           # Layout templates
+```
+
+## 🗃️ Database Schema
+
+### Các bảng chính:
+
+- **users**: Người dùng (admin, instructor, student)
+- **categories**: Danh mục khóa học
+- **courses**: Khóa học
+- **lessons**: Bài học
+- **course_user**: Đăng ký khóa học (pivot)
+- **lesson_progress**: Tiến độ học tập
+- **orders**: Đơn hàng
+- **order_items**: Chi tiết đơn hàng
+- **carts**: Giỏ hàng
+- **reviews**: Đánh giá
+
+## 🔧 Công nghệ sử dụng
+
+- **Backend**: Laravel 10+
+- **Frontend**: Blade Template, Bootstrap 5
+- **Database**: MySQL
+- **Icons**: Font Awesome 6
+- **JavaScript**: jQuery
+
+## 📝 Routes chính
+
+### Public
+
+- `GET /` - Trang chủ
+- `GET /courses/{slug}` - Chi tiết khóa học
+
+### Auth
+
+- `GET /login` - Đăng nhập
+- `GET /register` - Đăng ký
+- `POST /logout` - Đăng xuất
+
+### Student (yêu cầu đăng nhập)
+
+- `GET /cart` - Giỏ hàng
+- `GET /checkout` - Thanh toán
+- `GET /learning/{course}` - Vào học
+- `GET /profile` - Hồ sơ cá nhân
+
+### Admin (prefix: /admin)
+
+- Dashboard, Categories, Courses, Lessons, Users, Orders, Reviews
+
+### Instructor (prefix: /instructor)
+
+- Dashboard, Courses, Lessons
+
+## 📄 License
+
+MIT License
 
 In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 

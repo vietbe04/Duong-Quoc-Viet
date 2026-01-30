@@ -6,127 +6,117 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
+    /**
+     * Danh sách danh mục
+     */
     public function index(Request $request)
     {
-        if (!hasPermission('categories.view')) {
-            abort(403, 'Bạn không có quyền xem danh sách danh mục.');
-        }
-
-        $query = Category::with('parent');
+        $query = Category::withCount('courses');
 
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        if ($request->filled('type')) {
-            $query->where('type', $request->type);
-        }
-
-        $categories = $query->latest()->paginate(10);
+        $categories = $query->latest()->paginate(15);
 
         return view('admin.categories.index', compact('categories'));
     }
 
+    /**
+     * Form tạo danh mục
+     */
     public function create()
     {
-        if (!hasPermission('categories.create')) {
-            abort(403, 'Bạn không có quyền tạo danh mục.');
-        }
-
-        $parentCategories = Category::whereNull('parent_id')->get();
-        return view('admin.categories.create', compact('parentCategories'));
+        return view('admin.categories.create');
     }
 
+    /**
+     * Lưu danh mục mới
+     */
     public function store(Request $request)
     {
-        if (!hasPermission('categories.create')) {
-            abort(403, 'Bạn không có quyền tạo danh mục.');
-        }
-
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:categories',
-            'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'parent_id' => 'nullable|exists:categories,id',
-            'type' => 'required|in:post,product',
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:categories',
+            'description' => 'nullable|string|max:500',
             'status' => 'required|in:active,inactive',
+        ], [
+            'name.required' => 'Vui lòng nhập tên danh mục',
+            'name.unique' => 'Tên danh mục đã tồn tại',
+            'status.required' => 'Vui lòng chọn trạng thái',
         ]);
 
-        $data = $request->except('image');
-        $data['slug'] = $request->slug ?: Str::slug($request->name);
+        $validated['slug'] = Str::slug($validated['name']);
 
-        if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('categories', 'public');
+        // Đảm bảo slug unique
+        $count = Category::where('slug', $validated['slug'])->count();
+        if ($count > 0) {
+            $validated['slug'] .= '-' . ($count + 1);
         }
 
-        Category::create($data);
+        Category::create($validated);
 
         return redirect()->route('admin.categories.index')
-            ->with('success', 'Danh mục đã được tạo thành công!');
+            ->with('success', 'Tạo danh mục thành công!');
     }
 
+    /**
+     * Form sửa danh mục
+     */
     public function edit(Category $category)
     {
-        if (!hasPermission('categories.edit')) {
-            abort(403, 'Bạn không có quyền chỉnh sửa danh mục.');
-        }
-
-        $parentCategories = Category::whereNull('parent_id')
-            ->where('id', '!=', $category->id)
-            ->get();
-        return view('admin.categories.edit', compact('category', 'parentCategories'));
+        return view('admin.categories.edit', compact('category'));
     }
 
+    /**
+     * Cập nhật danh mục
+     */
     public function update(Request $request, Category $category)
     {
-        if (!hasPermission('categories.edit')) {
-            abort(403, 'Bạn không có quyền chỉnh sửa danh mục.');
-        }
-
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:categories,slug,' . $category->id,
-            'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'parent_id' => 'nullable|exists:categories,id',
-            'type' => 'required|in:post,product',
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
+            'description' => 'nullable|string|max:500',
             'status' => 'required|in:active,inactive',
+        ], [
+            'name.required' => 'Vui lòng nhập tên danh mục',
+            'name.unique' => 'Tên danh mục đã tồn tại',
+            'status.required' => 'Vui lòng chọn trạng thái',
         ]);
 
-        $data = $request->except('image');
-        $data['slug'] = $request->slug ?: Str::slug($request->name);
+        // Cập nhật slug nếu tên thay đổi
+        if ($category->name !== $validated['name']) {
+            $validated['slug'] = Str::slug($validated['name']);
 
-        if ($request->hasFile('image')) {
-            if ($category->image) {
-                Storage::disk('public')->delete($category->image);
+            $count = Category::where('slug', $validated['slug'])
+                ->where('id', '!=', $category->id)
+                ->count();
+
+            if ($count > 0) {
+                $validated['slug'] .= '-' . ($count + 1);
             }
-            $data['image'] = $request->file('image')->store('categories', 'public');
         }
 
-        $category->update($data);
+        $category->update($validated);
 
         return redirect()->route('admin.categories.index')
-            ->with('success', 'Danh mục đã được cập nhật thành công!');
+            ->with('success', 'Cập nhật danh mục thành công!');
     }
 
+    /**
+     * Xóa danh mục
+     */
     public function destroy(Category $category)
     {
-        if (!hasPermission('categories.delete')) {
-            abort(403, 'Bạn không có quyền xóa danh mục.');
-        }
-
-        if ($category->image) {
-            Storage::disk('public')->delete($category->image);
+        // Kiểm tra có khóa học không
+        if ($category->courses()->count() > 0) {
+            return back()->with('error', 'Không thể xóa danh mục đang có khóa học!');
         }
 
         $category->delete();
 
         return redirect()->route('admin.categories.index')
-            ->with('success', 'Danh mục đã được xóa thành công!');
+            ->with('success', 'Xóa danh mục thành công!');
     }
 }
